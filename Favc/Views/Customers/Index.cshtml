@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Favc.Models.Customer>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Customers</h2>
+
+<table class="table table-bordered" id="customers">
+    <thead>
+        <tr>
+            <th scope="col">Customer</th>
+            <th scope="col">Membership Type</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts
+{
+      <script>
+
+          $(document).ready(function () {
+              
+             var table = $("#customers").DataTable({
+                  ajax: {
+                      url: "/api/customers",
+                      dataSrc: ""
+                  },
+                  columns: [
+                      {
+                          data: "name",
+                          reder: function (data, type, customer) {
+                              return "<a href='/customers/edit/" + customer.Id + "'>" + customer.name + "</a>";
+                          }
+                      },
+                      {
+                          data: "membershipType.name"
+                      },
+                      {
+                          data: "id",
+                          render: function (data) {
+                              return "<button class='btn-link c-delete' data-customerId='" + data + "'>Delete</button>";
+                          }
+                      }
+                  ]
+              })
+
+              $("#customers").on("click",".c-delete", function () {
+                  if (confirm("Are you sure?")) {
+
+                      var btn = $(this);
+                      $.ajax({
+                          url: "/api/customers/" + btn.attr("data-customerId"),
+                          method: "DELETE",
+                          success: function () {
+                              table.row(btn.parents("tr")).remove().draw();
+                          }
+                      })
+                  }
+              });
+          });
+
+      </script>
+}
+
